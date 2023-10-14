@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex, Weak};
+use std::{sync::{Arc, Mutex, Weak}, fmt};
 
 #[derive(Debug)]
 pub struct Node {
@@ -53,6 +53,12 @@ impl Node {
 pub enum RelationDirection {
     From(Weak<Mutex<Node>>),
     To(Weak<Mutex<Node>>),
+}
+
+impl fmt::Display for RelationDirection {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "{:?}", self)
+  }
 }
 
 #[derive(Debug)]

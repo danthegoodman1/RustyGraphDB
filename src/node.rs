@@ -55,6 +55,7 @@ pub enum RelationDirection {
     To(Weak<Mutex<Node>>),
 }
 
+// Custom display to make to_string() return the enum type name
 impl fmt::Display for RelationDirection {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(f, "{:?}", self)

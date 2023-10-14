@@ -1,70 +1,10 @@
-use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex, Weak};
+pub mod node;
+pub mod graph;
 
-#[derive(Debug)]
-struct Node {
-    id: String,
-    neighbors: Vec<Weak<Mutex<Node>>>, // weak for non-owning reference
-}
+use node::Node;
+use graph::Graph;
 
-impl Node {
-    fn new(id: &str) -> Self {
-        Node {
-            id: String::from(id),
-            neighbors: Vec::new(),
-        }
-    }
 
-    fn get_neighbors_with_id(&self, target_id: &str) -> Vec<Arc<Mutex<Node>>> {
-        self.neighbors.iter()
-            .filter_map(|weak_neighbor| {
-                match weak_neighbor.upgrade() {
-                    Some(neighbor) => {
-                        // Lock the Mutex and compare the id
-                        if neighbor.lock().unwrap().id == target_id {
-                            Some(neighbor)
-                        } else {
-                            None
-                        }
-                    },
-                    None => {
-                        println!("ERROR: fail to upgrade weak neighbor reference in node '{}' returned none, this should never happen, this means cleanup of a relation did not happen properly!", self.id);
-                        None
-                    }
-                }
-            })
-            .collect()
-    }
-}
-
-#[derive(Debug)]
-struct Graph {
-    nodes: BTreeMap<String, Arc<Mutex<Node>>>, // Arc for owning reference
-}
-
-impl Graph {
-    fn new() -> Self {
-        Graph {
-            nodes: BTreeMap::new(),
-        }
-    }
-
-    fn add_node(&mut self, node: Node) -> Arc<Mutex<Node>> {
-        let id = node.id.clone();
-        let node_arc = Arc::new(Mutex::new(node));
-        self.nodes.insert(id, node_arc.clone()); // clone the Arc, not the Node (increment reference counter)
-        node_arc
-    }
-
-    fn add_edge(&mut self, from_node: &Arc<Mutex<Node>>, to_node: &Arc<Mutex<Node>>) {
-        from_node.lock().unwrap().neighbors.push(Arc::downgrade(to_node));
-        to_node.lock().unwrap().neighbors.push(Arc::downgrade(from_node));
-    }
-
-    fn get_by_id(&self, id: &str) -> Option<&Arc<Mutex<Node>>> {
-        self.nodes.get(id)
-    }
-}
 
 fn main() {
     let mut graph = Graph::new();

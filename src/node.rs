@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex, Weak}, fmt};
+use std::sync::{Arc, Mutex, Weak};
 
 #[derive(Debug)]
 pub struct Node {
@@ -55,13 +55,7 @@ pub enum RelationDirection {
     To(Weak<Mutex<Node>>),
 }
 
-// Custom display to make to_string() return the enum type name
-impl fmt::Display for RelationDirection {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "{:?}", self)
-  }
-}
-
+#[derive(Debug)]
 pub struct Relation {
     pub direction: RelationDirection,
     pub kind: String,
@@ -82,22 +76,4 @@ impl Relation {
             RelationDirection::To(node) => node,
         }
     }
-}
-
-impl fmt::Debug for Relation {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-      let node_id = match self.direction {
-          RelationDirection::From(ref weak) | RelationDirection::To(ref weak) => {
-              weak.upgrade().map_or_else(
-                  || String::from("(dangling reference)"),
-                  |arc_node| arc_node.lock().unwrap().id.clone()
-              )
-          },
-      };
-
-      f.debug_struct("Relation")
-          .field("direction", &format_args!("{}({})", self.direction.to_string(), node_id))
-          .field("kind", &self.kind)
-          .finish()
-  }
 }

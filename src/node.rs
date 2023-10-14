@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex, Weak};
 #[derive(Debug)]
 pub struct Node {
     pub id: String,
-    pub neighbors: Vec<Weak<Mutex<Node>>>, // weak for non-owning reference
+    pub neighbors: Vec<Relation>, // weak for non-owning reference
 }
 
 impl Node {
@@ -17,7 +17,7 @@ impl Node {
     pub fn get_neighbors_with_id(&self, target_id: &str) -> Vec<Arc<Mutex<Node>>> {
         self.neighbors.iter()
             .filter_map(|weak_neighbor| {
-                match weak_neighbor.upgrade() {
+                match weak_neighbor.any_direction().upgrade() {
                     Some(neighbor) => {
                         // Lock the Mutex and compare the id
                         if neighbor.lock().unwrap().id == target_id {
@@ -33,5 +33,47 @@ impl Node {
                 }
             })
             .collect()
+    }
+
+    pub fn get_outgoing_relations(&self) -> Vec<&Relation> {
+        self.neighbors
+            .iter()
+            .filter(|weak_neightbor| matches!(weak_neightbor.direction, RelationDirection::To(_)))
+            .collect()
+    }
+    pub fn get_incoming_relations(&self) -> Vec<&Relation> {
+        self.neighbors
+            .iter()
+            .filter(|weak_neightbor| matches!(weak_neightbor.direction, RelationDirection::From(_)))
+            .collect()
+    }
+}
+
+#[derive(Debug)]
+pub enum RelationDirection {
+    From(Weak<Mutex<Node>>),
+    To(Weak<Mutex<Node>>),
+}
+
+#[derive(Debug)]
+pub struct Relation {
+    pub direction: RelationDirection,
+    pub kind: String,
+}
+
+impl Relation {
+    pub fn new(direction: RelationDirection, kind: &str) -> Self {
+        Relation {
+            direction,
+            kind: String::from(kind),
+        }
+    }
+
+    /// Returns the direction regardless of type
+    pub fn any_direction(&self) -> &Weak<Mutex<Node>> {
+        match &self.direction {
+            RelationDirection::From(node) => node,
+            RelationDirection::To(node) => node,
+        }
     }
 }

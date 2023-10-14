@@ -1,6 +1,9 @@
-use std::{sync::{Mutex, Arc}, collections::BTreeMap};
+use std::{
+    collections::BTreeMap,
+    sync::{Arc, Mutex},
+};
 
-use crate::node::Node;
+use crate::node::{Node, Relation, RelationDirection};
 
 #[derive(Debug)]
 pub struct Graph {
@@ -21,9 +24,20 @@ impl Graph {
         node_arc
     }
 
-    pub fn add_edge(&mut self, from_node: &Arc<Mutex<Node>>, to_node: &Arc<Mutex<Node>>) {
-        from_node.lock().unwrap().neighbors.push(Arc::downgrade(to_node));
-        to_node.lock().unwrap().neighbors.push(Arc::downgrade(from_node));
+    pub fn add_relation(
+        &mut self,
+        from_node: &Arc<Mutex<Node>>,
+        to_node: &Arc<Mutex<Node>>,
+        relation: &str,
+    ) {
+        from_node.lock().unwrap().neighbors.push(Relation::new(
+            RelationDirection::To(Arc::downgrade(to_node)),
+            relation,
+        ));
+        to_node.lock().unwrap().neighbors.push(Relation::new(
+            RelationDirection::From(Arc::downgrade(from_node)),
+            relation,
+        ));
     }
 
     pub fn get_by_id(&self, id: &str) -> Option<&Arc<Mutex<Node>>> {

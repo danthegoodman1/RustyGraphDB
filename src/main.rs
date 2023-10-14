@@ -1,10 +1,8 @@
-pub mod node;
 pub mod graph;
+pub mod node;
 
-use node::Node;
 use graph::Graph;
-
-
+use node::Node;
 
 fn main() {
     let mut graph = Graph::new();
@@ -13,11 +11,15 @@ fn main() {
     let b_node = graph.add_node(Node::new("b"));
     let c_node = graph.add_node(Node::new("c"));
 
-    graph.add_edge(&a_node, &b_node);
-    graph.add_edge(&b_node, &c_node);
+    graph.add_relation(&a_node, &b_node, "friends");
+    graph.add_relation(&b_node, &c_node, "friends");
 
     // Test getting a node
-    let node_a = graph.get_by_id("a").expect("did not find node a!").lock().unwrap();
+    let node_a = graph
+        .get_by_id("a")
+        .expect("did not find node a!")
+        .lock()
+        .unwrap();
     println!("Got node a id '{}'", node_a.id);
 
     // Test getting list of nodes
@@ -29,4 +31,13 @@ fn main() {
         node_ids.push(node.id.clone())
     }
     dbg!(node_ids);
+
+    // Get outgoing relations
+    let node_b = b_node.lock().unwrap();
+    let outgoing = node_b.get_outgoing_relations();
+    dbg!(outgoing);
+
+    // Get incoming relations
+    let incoming = node_b.get_incoming_relations();
+    dbg!(incoming);
 }

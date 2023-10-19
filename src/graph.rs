@@ -7,6 +7,7 @@ use crate::node::{Node, Relation, RelationDirection};
 
 #[derive(Debug)]
 pub struct Graph {
+    /// Note: this is not thread-safe. Either use a Rwlock on top, or SkipMap (https://tikv.github.io/doc/crossbeam_skiplist/index.html)
     nodes: BTreeMap<String, Arc<RwLock<Node>>>, // Arc for owning reference
 }
 

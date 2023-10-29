@@ -40,7 +40,7 @@ fn main() {
 
     // Get outgoing relations
     let node_b = b_node.read().unwrap();
-    let outgoing = node_b.get_with_relation(Option::Some(RELATION_DIRECTION_TO_ID), None);
+    let outgoing = node_b.get_relation(Option::Some(RELATION_DIRECTION_TO_ID), None);
     for i in outgoing {
         println!(
             "Got outgoing direction {} for id {}",
@@ -55,7 +55,7 @@ fn main() {
     }
 
     // Get incoming relations
-    let incoming = node_b.get_with_relation(Option::Some(RELATION_DIRECTION_FROM_ID), None);
+    let incoming = node_b.get_relation(Option::Some(RELATION_DIRECTION_FROM_ID), None);
     for i in incoming {
         println!(
             "Got incoming direction {} for id {}",
@@ -70,7 +70,7 @@ fn main() {
     }
 
     // Test relation matching
-    let a_friends = node_a.get_with_relation(None, Option::Some(String::from("friends")));
+    let a_friends = node_a.get_relation(None, Option::Some(String::from("friends")));
     if a_friends.len() != 1 {
         dbg!(a_friends);
         panic!("incorrect friends relation length")

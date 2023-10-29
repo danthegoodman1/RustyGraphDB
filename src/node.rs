@@ -42,7 +42,7 @@ impl Node {
     }
 
     /// Gets relations matching a condition
-    pub fn get_with_relation(
+    pub fn get_relation(
         &self,
         relation_direction: Option<u8>,
         kind: Option<String>,

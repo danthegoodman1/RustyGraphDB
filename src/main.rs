@@ -6,6 +6,8 @@ use std::time::Instant;
 use graph::Graph;
 use node::Node;
 
+use crate::node::{RELATION_DIRECTION_TO_ID, RELATION_DIRECTION_FROM_ID};
+
 fn main() {
     let mut graph = Graph::new();
 
@@ -16,7 +18,7 @@ fn main() {
     // Make demo circular relation
     graph.add_relation(&a_node, &b_node, "friends");
     graph.add_relation(&b_node, &c_node, "friends");
-    graph.add_relation(&c_node, &a_node, "friends");
+    graph.add_relation(&c_node, &a_node, "family");
 
     // Test getting a node in block so lock releases
     let node_a = graph
@@ -38,7 +40,7 @@ fn main() {
 
     // Get outgoing relations
     let node_b = b_node.read().unwrap();
-    let outgoing = node_b.get_outgoing_relations();
+    let outgoing = node_b.get_with_relation(Option::Some(RELATION_DIRECTION_TO_ID), None);
     for i in outgoing {
         println!(
             "Got outgoing direction {} for id {}",
@@ -53,7 +55,7 @@ fn main() {
     }
 
     // Get incoming relations
-    let incoming = node_b.get_incoming_relations();
+    let incoming = node_b.get_with_relation(Option::Some(RELATION_DIRECTION_FROM_ID), None);
     for i in incoming {
         println!(
             "Got incoming direction {} for id {}",
@@ -65,6 +67,15 @@ fn main() {
                 .unwrap()
                 .id
         );
+    }
+
+    // Test relation matching
+    let a_friends = node_a.get_with_relation(None, Option::Some(String::from("friends")));
+    if a_friends.len() != 1 {
+        dbg!(a_friends);
+        panic!("incorrect friends relation length")
+    } else {
+        println!("matched relation kind")
     }
 
     // Traverse 10M times

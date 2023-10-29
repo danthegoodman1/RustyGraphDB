@@ -1,10 +1,16 @@
-use std::{sync::{Arc, RwLock, Weak}, fmt};
+use std::{
+    fmt,
+    sync::{Arc, RwLock, Weak},
+};
 
 #[derive(Debug)]
 pub struct Node {
     pub id: String,
     pub neighbors: Vec<Relation>, // weak for non-owning reference
 }
+
+pub const RELATION_DIRECTION_TO_ID: u8 = 0;
+pub const RELATION_DIRECTION_FROM_ID: u8 = 1;
 
 impl Node {
     pub fn new(id: &str) -> Self {
@@ -35,16 +41,28 @@ impl Node {
             .collect()
     }
 
-    pub fn get_outgoing_relations(&self) -> Vec<&Relation> {
+    /// Gets relations matching a condition
+    pub fn get_with_relation(
+        &self,
+        relation_direction: Option<u8>,
+        kind: Option<String>,
+    ) -> Vec<&Relation> {
         self.neighbors
             .iter()
-            .filter(|weak_neightbor| matches!(weak_neightbor.direction, RelationDirection::To(_)))
-            .collect()
-    }
-    pub fn get_incoming_relations(&self) -> Vec<&Relation> {
-        self.neighbors
-            .iter()
-            .filter(|weak_neightbor| matches!(weak_neightbor.direction, RelationDirection::From(_)))
+            .filter(|weak_neighbor| {
+                // Check for relation direction match
+                if let Some(rel_dir) = &relation_direction {
+                    return rel_dir == &weak_neighbor.direction.id()
+                }
+
+                // Check for kind match
+                if let Some(k) = &kind {
+                    return k == &weak_neighbor.kind
+                }
+
+                // Default return is false
+                false
+            })
             .collect()
     }
 }
@@ -56,9 +74,18 @@ pub enum RelationDirection {
 }
 
 impl fmt::Display for RelationDirection {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "{:?}", self)
-  }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl RelationDirection {
+    fn id(&self) -> u8 {
+        match self {
+            RelationDirection::To(_) => RELATION_DIRECTION_TO_ID,
+            RelationDirection::From(_) => RELATION_DIRECTION_FROM_ID,
+        }
+    }
 }
 
 #[derive(Debug)]

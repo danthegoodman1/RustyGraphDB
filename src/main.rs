@@ -118,5 +118,5 @@ fn main() {
 
     let end = start.elapsed().as_millis();
     println!("Traversed 10M in {}ms", end);
-    // debug: Traversed 10M in 4649ms --- release: Traversed 10M in 1147ms
+    // debug: Traversed 10M in 4649ms --- release: Traversed 10M in 1110ms
 }

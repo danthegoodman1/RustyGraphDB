@@ -119,4 +119,28 @@ fn main() {
     let end = start.elapsed().as_millis();
     println!("Traversed 10M in {}ms", end);
     // debug: Traversed 10M in 4649ms --- release: Traversed 10M in 1110ms
+
+    // Performance test partial conditional iteration 10M times, both matches
+    let start = Instant::now();
+    let mut current = a_node.clone();
+
+    for _ in 0..10_000_000 {
+        // scope because current is borroed
+        let next_node = {
+            let read = &current.read().expect("failed to read");
+            let friends = read.get_relation(
+                Option::Some(RELATION_DIRECTION_TO_ID),
+                None,
+            );
+            friends[0]
+                .node()
+                .upgrade()
+                .expect("failed to upgrade any direction")
+        };
+        current = next_node;
+    }
+
+    let end = start.elapsed().as_millis();
+    println!("Traversed partial conditional 10M in {}ms", end);
+    // release: Traversed partial conditional 10M in 759ms
 }

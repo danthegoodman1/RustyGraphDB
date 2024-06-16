@@ -41,7 +41,7 @@ impl Node {
             .collect()
     }
 
-    /// Gets relations matching a condition
+    /// Gets relations matching one or both conditions
     pub fn get_relation(
         &self,
         relation_direction: Option<u8>,
@@ -50,18 +50,21 @@ impl Node {
         self.neighbors
             .iter()
             .filter(|weak_neighbor| {
-                let mut valid = true;
+                // Default true for AND operation (since ignored if not included)
+                let mut rel_valid = true;
+                let mut kind_valid = true;
+
                 // Check for relation direction match
                 if let Some(rel_dir) = &relation_direction {
-                    valid = rel_dir == &weak_neighbor.direction.id();
+                    rel_valid = rel_dir == &weak_neighbor.direction.id();
                 }
 
                 // Check for kind match
                 if let Some(k) = &kind {
-                    valid = k == &weak_neighbor.kind;
+                    kind_valid = k == &weak_neighbor.kind;
                 }
 
-                valid
+                rel_valid && kind_valid
             })
             .collect()
     }

@@ -94,7 +94,8 @@ fn main() {
 
     let end = start.elapsed().as_millis();
     println!("Traversed 10M in {}ms", end);
-    // debug: Traversed 10M in 1149ms --- release: Traversed 10M in 334ms
+    // i9 MBP: debug: Traversed 10M in 1149ms --- release: Traversed 10M in 334ms
+    // M3 Max MBP (release): Traversed 10M in 62ms
 
     // Performance test conditional iteration 10M times, both matches
     let start = Instant::now();
@@ -119,6 +120,7 @@ fn main() {
     let end = start.elapsed().as_millis();
     println!("Traversed 10M in {}ms", end);
     // debug: Traversed 10M in 4649ms --- release: Traversed 10M in 1110ms
+    // M3 Max MBP (release): Traversed 10M in 270ms
 
     // Performance test partial conditional iteration 10M times, both matches
     let start = Instant::now();
@@ -143,4 +145,5 @@ fn main() {
     let end = start.elapsed().as_millis();
     println!("Traversed partial conditional 10M in {}ms", end);
     // release: Traversed partial conditional 10M in 759ms
+    // M3 Max MBP (release): Traversed partial conditional 10M in 146ms
 }

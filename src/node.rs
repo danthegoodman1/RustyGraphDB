@@ -50,18 +50,18 @@ impl Node {
         self.neighbors
             .iter()
             .filter(|weak_neighbor| {
+                let mut valid = true;
                 // Check for relation direction match
                 if let Some(rel_dir) = &relation_direction {
-                    return rel_dir == &weak_neighbor.direction.id()
+                    valid = rel_dir == &weak_neighbor.direction.id();
                 }
 
                 // Check for kind match
                 if let Some(k) = &kind {
-                    return k == &weak_neighbor.kind
+                    valid = k == &weak_neighbor.kind;
                 }
 
-                // Default return is false
-                false
+                valid
             })
             .collect()
     }

@@ -93,7 +93,7 @@ fn main() {
     }
 
     let end = start.elapsed().as_millis();
-    println!("Traversed 10M in {}ms", end);
+    println!("Traversed 10M in {}ms at {:.2}M tps", end, 10_000.0 / end as f64);
     // i9 MBP debug: Traversed 10M in 1149ms --- release: Traversed 10M in 334ms
     // M3 Max MBP (release): Traversed 10M in 62ms
 
@@ -118,7 +118,7 @@ fn main() {
     }
 
     let end = start.elapsed().as_millis();
-    println!("Traversed 10M in {}ms", end);
+    println!("Traversed (with direction and kind) 10M in {}ms at {:.2}M tps", end, 10_000.0 / end as f64);
     // i9 MBP debug: Traversed 10M in 4649ms --- release: Traversed 10M in 1110ms
     // M3 Max MBP (release): Traversed 10M in 270ms
 
@@ -143,7 +143,7 @@ fn main() {
     }
 
     let end = start.elapsed().as_millis();
-    println!("Traversed partial conditional 10M in {}ms", end);
+    println!("Traversed (direction only) 10M in {}ms at {:.2}M tps", end, 10_000.0 / end as f64);
     // i9 MBP release: Traversed partial conditional 10M in 759ms
     // M3 Max MBP (release): Traversed partial conditional 10M in 146ms
 }

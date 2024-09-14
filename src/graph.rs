@@ -1,6 +1,6 @@
 use std::{
     collections::BTreeMap,
-    rc::{Rc, Weak},
+    rc::Rc,
     cell::RefCell, // Add this import
 };
 
@@ -9,7 +9,7 @@ use crate::node::{Node, Relation, RelationDirection};
 #[derive(Debug)]
 pub struct Graph {
     /// Note: this is not thread-safe. Either use a Rwlock on top, or SkipMap (https://tikv.github.io/doc/crossbeam_skiplist/index.html)
-    nodes: BTreeMap<String, Rc<RefCell<Node>>>, // Change Rc<Node> to Rc<RefCell<Node>>
+    nodes: BTreeMap<[u8; 128], Rc<RefCell<Node>>>, // Change Rc<Node> to Rc<RefCell<Node>>
 }
 
 impl Graph {
@@ -30,7 +30,7 @@ impl Graph {
         &mut self,
         from_node: &Rc<RefCell<Node>>,
         to_node: &Rc<RefCell<Node>>,
-        relation: &str,
+        relation: [u8; 128],
     ) {
         from_node.borrow_mut().neighbors.push(Relation::new(
             RelationDirection::To(Rc::downgrade(to_node)),
@@ -42,7 +42,7 @@ impl Graph {
         ));
     }
 
-    pub fn get_by_id(&self, id: &str) -> Option<&Rc<RefCell<Node>>> {
+    pub fn get_by_id(&self, id: &[u8; 128]) -> Option<&Rc<RefCell<Node>>> {
         self.nodes.get(id)
     }
 }

@@ -6,35 +6,35 @@ use std::{
 
 #[derive(Debug)]
 pub struct Node {
-    pub id: String,
-    pub neighbors: Vec<Relation>, // weak for non-owning reference
+    pub id: [u8; 128], // Changed from String to fixed-size byte array
+    pub neighbors: Vec<Relation>, // unchanged
 }
 
 pub const RELATION_DIRECTION_TO: u8 = 0;
 pub const RELATION_DIRECTION_FROM: u8 = 1;
 
 impl Node {
-    pub fn new(id: &str) -> Self {
+    pub fn new(id: [u8; 128]) -> Self { // Updated to accept byte array reference
         Node {
-            id: String::from(id),
+            id: id, // Copy the byte array
             neighbors: Vec::new(),
         }
     }
 
-    pub fn get_neighbors_with_id(&self, target_id: &str) -> Vec<Rc<RefCell<Node>>> {
+    pub fn get_neighbors_with_id(&self, target_id: &[u8; 128]) -> Vec<Rc<RefCell<Node>>> {
         self.neighbors.iter()
             .filter_map(|weak_neighbor| {
                 match weak_neighbor.node().upgrade() {
                     Some(neighbor) => {
-                        // Lock the Mutex and compare the id
-                        if neighbor.borrow().id == target_id {
+                        // Compare the id
+                        if neighbor.borrow().id == *target_id {
                             Some(neighbor)
                         } else {
                             None
                         }
                     },
                     None => {
-                        println!("ERROR: fail to upgrade weak neighbor reference in node '{}' returned none, this should never happen, this means cleanup of a relation did not happen properly!", self.id);
+                        println!("ERROR: fail to upgrade weak neighbor reference in node '{}' returned none, this should never happen, this means cleanup of a relation did not happen properly!", String::from_utf8_lossy(&self.id));
                         None
                     }
                 }
@@ -46,7 +46,7 @@ impl Node {
     pub fn get_relation(
         &self,
         relation_direction: Option<u8>,
-        kind: Option<String>,
+        kind: Option<[u8; 128]>,
     ) -> Vec<&Relation> {
         self.neighbors
             .iter()
@@ -95,14 +95,14 @@ impl RelationDirection {
 #[derive(Debug)]
 pub struct Relation {
     pub direction: RelationDirection,
-    pub kind: String,
+    pub kind: [u8; 128],
 }
 
 impl Relation {
-    pub fn new(direction: RelationDirection, kind: &str) -> Self {
+    pub fn new(direction: RelationDirection, kind: [u8; 128]) -> Self {
         Relation {
             direction,
-            kind: String::from(kind),
+            kind:  kind,
         }
     }
 

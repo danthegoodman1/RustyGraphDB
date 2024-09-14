@@ -10,8 +10,8 @@ pub struct Node {
     pub neighbors: Vec<Relation>, // weak for non-owning reference
 }
 
-pub const RELATION_DIRECTION_TO_ID: u8 = 0;
-pub const RELATION_DIRECTION_FROM_ID: u8 = 1;
+pub const RELATION_DIRECTION_TO: u8 = 0;
+pub const RELATION_DIRECTION_FROM: u8 = 1;
 
 impl Node {
     pub fn new(id: &str) -> Self {
@@ -86,8 +86,8 @@ impl fmt::Display for RelationDirection {
 impl RelationDirection {
     fn id(&self) -> u8 {
         match self {
-            RelationDirection::To(_) => RELATION_DIRECTION_TO_ID,
-            RelationDirection::From(_) => RELATION_DIRECTION_FROM_ID,
+            RelationDirection::To(_) => RELATION_DIRECTION_TO,
+            RelationDirection::From(_) => RELATION_DIRECTION_FROM,
         }
     }
 }

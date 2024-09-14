@@ -6,7 +6,7 @@ use std::time::Instant;
 use graph::Graph;
 use node::Node;
 
-use crate::node::{RELATION_DIRECTION_FROM_ID, RELATION_DIRECTION_TO_ID};
+use crate::node::{RELATION_DIRECTION_FROM, RELATION_DIRECTION_TO};
 
 // Traversed 10M in 40ms at 250.00M tps
 // Traversed (with direction and kind) 10M in 340ms at 29.41M tps
@@ -42,7 +42,7 @@ fn main() {
 
     // Get outgoing relations
     let node_b = b_node.borrow();
-    let outgoing = node_b.get_relation(Option::Some(RELATION_DIRECTION_TO_ID), None);
+    let outgoing = node_b.get_relation(Option::Some(RELATION_DIRECTION_TO), None);
     for i in outgoing {
         println!(
             "Got outgoing direction {} for id {}",
@@ -56,7 +56,7 @@ fn main() {
     }
 
     // Get incoming relations
-    let incoming = node_b.get_relation(Option::Some(RELATION_DIRECTION_FROM_ID), None);
+    let incoming = node_b.get_relation(Option::Some(RELATION_DIRECTION_FROM), None);
     for i in incoming {
         println!(
             "Got incoming direction {} for id {}",
@@ -104,7 +104,7 @@ fn main() {
         let next_node = {
             let read = &current.borrow();
             let friends = read.get_relation(
-                Option::Some(RELATION_DIRECTION_TO_ID),
+                Option::Some(RELATION_DIRECTION_TO),
                 Option::Some(String::from("friends")),
             );
             friends[0]
@@ -127,7 +127,7 @@ fn main() {
         let next_node = {
             let read = &current.borrow();
             let friends = read.get_relation(
-                Option::Some(RELATION_DIRECTION_TO_ID),
+                Option::Some(RELATION_DIRECTION_TO),
                 None,
             );
             friends[0]

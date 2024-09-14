@@ -6,7 +6,7 @@ use std::{
 
 #[derive(Debug)]
 pub struct Node {
-    pub id: [u8; 128], // Changed from String to fixed-size byte array
+    pub id: [u8; 128],            // Changed from String to fixed-size byte array
     pub neighbors: Vec<Relation>, // unchanged
 }
 
@@ -14,7 +14,8 @@ pub const RELATION_DIRECTION_TO: u8 = 0;
 pub const RELATION_DIRECTION_FROM: u8 = 1;
 
 impl Node {
-    pub fn new(id: [u8; 128]) -> Self { // Updated to accept byte array reference
+    pub fn new(id: [u8; 128]) -> Self {
+        // Updated to accept byte array reference
         Node {
             id: id, // Copy the byte array
             neighbors: Vec::new(),
@@ -50,15 +51,13 @@ impl Node {
     ) -> Vec<&Relation> {
         self.neighbors
             .iter()
-            .filter(|weak_neighbor| {
-                match (relation_direction, kind) {
-                    (Some(rel_dir), Some(k)) => {
-                        rel_dir == weak_neighbor.direction.id() && k == weak_neighbor.kind
-                    }
-                    (Some(rel_dir), None) => rel_dir == weak_neighbor.direction.id(),
-                    (None, Some(k)) => k == weak_neighbor.kind,
-                    (None, None) => true,
+            .filter(|weak_neighbor| match (relation_direction, kind) {
+                (Some(rel_dir), Some(k)) => {
+                    rel_dir == weak_neighbor.direction.id() && k == weak_neighbor.kind
                 }
+                (Some(rel_dir), None) => rel_dir == weak_neighbor.direction.id(),
+                (None, Some(k)) => k == weak_neighbor.kind,
+                (None, None) => true,
             })
             .collect()
     }
@@ -95,7 +94,7 @@ impl Relation {
     pub fn new(direction: RelationDirection, kind: [u8; 128]) -> Self {
         Relation {
             direction,
-            kind:  kind,
+            kind: kind,
         }
     }
 

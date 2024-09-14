@@ -8,9 +8,9 @@ use node::Node;
 
 use crate::node::{RELATION_DIRECTION_FROM, RELATION_DIRECTION_TO};
 
-// Traversed 10M in 40ms at 250.00M tps
-// Traversed (direction only) 10M in 155ms at 64.52M tps
-// Traversed (with direction and kind) 10M in 220ms at 45.45M tps
+// Traversed 10M in 37ms at 270.27M tps
+// Traversed (direction only) 10M in 150ms at 66.67M tps
+// Traversed (with direction and kind) 10M in 189ms at 52.91M tps
 
 trait ToByteArray {
     fn to_byte_array(&self) -> [u8; 128];

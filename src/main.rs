@@ -8,6 +8,10 @@ use node::Node;
 
 use crate::node::{RELATION_DIRECTION_FROM_ID, RELATION_DIRECTION_TO_ID};
 
+// Traversed 10M in 40ms at 250.00M tps
+// Traversed (with direction and kind) 10M in 340ms at 29.41M tps
+// Traversed (direction only) 10M in 144ms at 69.44M tps
+
 fn main() {
     let mut graph = Graph::new();
 
@@ -24,22 +28,20 @@ fn main() {
     let node_a = graph
         .get_by_id("a")
         .expect("did not find node a!")
-        .read()
-        .unwrap();
+        .borrow();
     println!("Got node a id '{}'", node_a.id);
 
     // Test getting list of nodes
     let nodes = node_a.get_neighbors_with_id("b");
     // Build the node IDs
     let mut node_ids = Vec::new();
-    for arc in nodes {
-        let node = arc.read().unwrap();
-        node_ids.push(node.id.clone())
+    for rc in nodes {
+        node_ids.push(rc.borrow().id.clone())
     }
     dbg!(node_ids);
 
     // Get outgoing relations
-    let node_b = b_node.read().unwrap();
+    let node_b = b_node.borrow();
     let outgoing = node_b.get_relation(Option::Some(RELATION_DIRECTION_TO_ID), None);
     for i in outgoing {
         println!(
@@ -48,8 +50,7 @@ fn main() {
             i.node()
                 .upgrade()
                 .expect("failed to upgrade!")
-                .read()
-                .unwrap()
+                .borrow()
                 .id
         );
     }
@@ -63,8 +64,7 @@ fn main() {
             i.node()
                 .upgrade()
                 .expect("failed to upgrade!")
-                .read()
-                .unwrap()
+                .borrow()
                 .id
         );
     }
@@ -85,7 +85,7 @@ fn main() {
     for _ in 0..10_000_000 {
         // scope because current is borroed
         let next_node = {
-            let relation = &current.read().expect("failed to read").neighbors[0];
+            let relation = &current.borrow().neighbors[0];
             let direction = relation.node();
             direction.upgrade().expect("failed to upgrade!")
         };
@@ -94,8 +94,6 @@ fn main() {
 
     let end = start.elapsed().as_millis();
     println!("Traversed 10M in {}ms at {:.2}M tps", end, 10_000.0 / end as f64);
-    // i9 MBP debug: Traversed 10M in 1149ms --- release: Traversed 10M in 334ms
-    // M3 Max MBP (release): Traversed 10M in 62ms
 
     // Performance test conditional iteration 10M times, both matches
     let start = Instant::now();
@@ -104,7 +102,7 @@ fn main() {
     for _ in 0..10_000_000 {
         // scope because current is borroed
         let next_node = {
-            let read = &current.read().expect("failed to read");
+            let read = &current.borrow();
             let friends = read.get_relation(
                 Option::Some(RELATION_DIRECTION_TO_ID),
                 Option::Some(String::from("friends")),
@@ -119,8 +117,6 @@ fn main() {
 
     let end = start.elapsed().as_millis();
     println!("Traversed (with direction and kind) 10M in {}ms at {:.2}M tps", end, 10_000.0 / end as f64);
-    // i9 MBP debug: Traversed 10M in 4649ms --- release: Traversed 10M in 1110ms
-    // M3 Max MBP (release): Traversed 10M in 270ms
 
     // Performance test partial conditional iteration 10M times, both matches
     let start = Instant::now();
@@ -129,7 +125,7 @@ fn main() {
     for _ in 0..10_000_000 {
         // scope because current is borroed
         let next_node = {
-            let read = &current.read().expect("failed to read");
+            let read = &current.borrow();
             let friends = read.get_relation(
                 Option::Some(RELATION_DIRECTION_TO_ID),
                 None,
@@ -144,6 +140,4 @@ fn main() {
 
     let end = start.elapsed().as_millis();
     println!("Traversed (direction only) 10M in {}ms at {:.2}M tps", end, 10_000.0 / end as f64);
-    // i9 MBP release: Traversed partial conditional 10M in 759ms
-    // M3 Max MBP (release): Traversed partial conditional 10M in 146ms
 }

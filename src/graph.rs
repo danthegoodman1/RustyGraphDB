@@ -1,6 +1,7 @@
 use std::{
     collections::BTreeMap,
-    sync::{Arc, RwLock},
+    rc::{Rc, Weak},
+    cell::RefCell, // Add this import
 };
 
 use crate::node::{Node, Relation, RelationDirection};
@@ -8,7 +9,7 @@ use crate::node::{Node, Relation, RelationDirection};
 #[derive(Debug)]
 pub struct Graph {
     /// Note: this is not thread-safe. Either use a Rwlock on top, or SkipMap (https://tikv.github.io/doc/crossbeam_skiplist/index.html)
-    nodes: BTreeMap<String, Arc<RwLock<Node>>>, // Arc for owning reference
+    nodes: BTreeMap<String, Rc<RefCell<Node>>>, // Change Rc<Node> to Rc<RefCell<Node>>
 }
 
 impl Graph {
@@ -18,30 +19,30 @@ impl Graph {
         }
     }
 
-    pub fn add_node(&mut self, node: Node) -> Arc<RwLock<Node>> {
+    pub fn add_node(&mut self, node: Node) -> Rc<RefCell<Node>> { // Update return type
         let id = node.id.clone();
-        let node_arc = Arc::new(RwLock::new(node));
-        self.nodes.insert(id, node_arc.clone()); // clone the Arc, not the Node (increment reference counter)
-        node_arc
+        let node_rc = Rc::new(RefCell::new(node)); // Wrap Node in RefCell
+        self.nodes.insert(id, Rc::clone(&node_rc));
+        node_rc
     }
 
     pub fn add_relation(
         &mut self,
-        from_node: &Arc<RwLock<Node>>,
-        to_node: &Arc<RwLock<Node>>,
+        from_node: &Rc<RefCell<Node>>,
+        to_node: &Rc<RefCell<Node>>,
         relation: &str,
     ) {
-        from_node.write().unwrap().neighbors.push(Relation::new(
-            RelationDirection::To(Arc::downgrade(to_node)),
+        from_node.borrow_mut().neighbors.push(Relation::new(
+            RelationDirection::To(Rc::downgrade(to_node)),
             relation,
         ));
-        to_node.write().unwrap().neighbors.push(Relation::new(
-            RelationDirection::From(Arc::downgrade(from_node)),
+        to_node.borrow_mut().neighbors.push(Relation::new(
+            RelationDirection::From(Rc::downgrade(from_node)),
             relation,
         ));
     }
 
-    pub fn get_by_id(&self, id: &str) -> Option<&Arc<RwLock<Node>>> {
+    pub fn get_by_id(&self, id: &str) -> Option<&Rc<RefCell<Node>>> {
         self.nodes.get(id)
     }
 }

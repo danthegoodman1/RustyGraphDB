@@ -1,6 +1,7 @@
 use std::{
-    fmt,
-    sync::{Arc, RwLock, Weak},
+    fmt, 
+    rc::{Rc, Weak},
+    cell::RefCell, // Add this import
 };
 
 #[derive(Debug)]
@@ -20,13 +21,13 @@ impl Node {
         }
     }
 
-    pub fn get_neighbors_with_id(&self, target_id: &str) -> Vec<Arc<RwLock<Node>>> {
+    pub fn get_neighbors_with_id(&self, target_id: &str) -> Vec<Rc<RefCell<Node>>> {
         self.neighbors.iter()
             .filter_map(|weak_neighbor| {
                 match weak_neighbor.node().upgrade() {
                     Some(neighbor) => {
                         // Lock the Mutex and compare the id
-                        if neighbor.read().unwrap().id == target_id {
+                        if neighbor.borrow().id == target_id {
                             Some(neighbor)
                         } else {
                             None
@@ -72,8 +73,8 @@ impl Node {
 
 #[derive(Debug)]
 pub enum RelationDirection {
-    From(Weak<RwLock<Node>>),
-    To(Weak<RwLock<Node>>),
+    From(Weak<RefCell<Node>>), // Change Weak<Node> to Weak<RefCell<Node>>
+    To(Weak<RefCell<Node>>),   // Change Weak<Node> to Weak<RefCell<Node>>
 }
 
 impl fmt::Display for RelationDirection {
@@ -106,7 +107,7 @@ impl Relation {
     }
 
     /// Returns the node regardless of the direction
-    pub fn node(&self) -> &Weak<RwLock<Node>> {
+    pub fn node(&self) -> &Weak<RefCell<Node>> { // Update return type
         match &self.direction {
             RelationDirection::From(node) => node,
             RelationDirection::To(node) => node,

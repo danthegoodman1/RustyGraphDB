@@ -51,21 +51,14 @@ impl Node {
         self.neighbors
             .iter()
             .filter(|weak_neighbor| {
-                // Default true for AND operation (since ignored if not included)
-                let mut rel_valid = true;
-                let mut kind_valid = true;
-
-                // Check for relation direction match
-                if let Some(rel_dir) = &relation_direction {
-                    rel_valid = rel_dir == &weak_neighbor.direction.id();
+                match (relation_direction, kind) {
+                    (Some(rel_dir), Some(k)) => {
+                        rel_dir == weak_neighbor.direction.id() && k == weak_neighbor.kind
+                    }
+                    (Some(rel_dir), None) => rel_dir == weak_neighbor.direction.id(),
+                    (None, Some(k)) => k == weak_neighbor.kind,
+                    (None, None) => true,
                 }
-
-                // Check for kind match
-                if let Some(k) = &kind {
-                    kind_valid = k == &weak_neighbor.kind;
-                }
-
-                rel_valid && kind_valid
             })
             .collect()
     }

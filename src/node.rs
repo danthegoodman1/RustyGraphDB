@@ -1,7 +1,7 @@
 use std::{
-    fmt, 
-    rc::{Rc, Weak},
     cell::RefCell, // Add this import
+    fmt,
+    rc::{Rc, Weak},
 };
 
 #[derive(Debug)]
@@ -107,7 +107,8 @@ impl Relation {
     }
 
     /// Returns the node regardless of the direction
-    pub fn node(&self) -> &Weak<RefCell<Node>> { // Update return type
+    pub fn node(&self) -> &Weak<RefCell<Node>> {
+        // Update return type
         match &self.direction {
             RelationDirection::From(node) => node,
             RelationDirection::To(node) => node,

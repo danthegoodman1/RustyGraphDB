@@ -52,7 +52,7 @@ fn main() {
 
     // Get outgoing relations
     let node_b = b_node.borrow();
-    let outgoing = node_b.get_relation(Option::Some(RELATION_DIRECTION_TO), None);
+    let outgoing = node_b.get_relation(Option::Some(RELATION_DIRECTION_TO), None, Some(1));
     for i in outgoing {
         println!(
             "Got outgoing direction {} for id {:?}",
@@ -66,7 +66,7 @@ fn main() {
     }
 
     // Get incoming relations
-    let incoming = node_b.get_relation(Option::Some(RELATION_DIRECTION_FROM), None);
+    let incoming = node_b.get_relation(Option::Some(RELATION_DIRECTION_FROM), None, Some(1));
     for i in incoming {
         println!(
             "Got incoming direction {} for id {:?}",
@@ -80,7 +80,7 @@ fn main() {
     }
 
     // Test relation matching
-    let a_friends = node_a.get_relation(None, Option::Some("friends".to_byte_array()));
+    let a_friends = node_a.get_relation(None, Option::Some("friends".to_byte_array()), Some(1));
     
     // Traverse 10M times
     let start = Instant::now();
@@ -110,6 +110,7 @@ fn main() {
             let friends = read.get_relation(
                 Option::Some(RELATION_DIRECTION_TO),
                 None,
+                Some(1)
             );
             friends[0]
                 .node()
@@ -133,6 +134,7 @@ fn main() {
             let friends = read.get_relation(
                 Option::Some(RELATION_DIRECTION_TO),
                 Option::Some("friends".to_byte_array()),
+                Some(1)
             );
             friends[0]
                 .node()

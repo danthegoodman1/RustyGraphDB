@@ -48,6 +48,7 @@ impl Node {
         &self,
         relation_direction: Option<u8>,
         kind: Option<[u8; 128]>,
+        limit: Option<usize>,
     ) -> Vec<&Relation> {
         self.neighbors
             .iter()
@@ -59,6 +60,7 @@ impl Node {
                 (None, Some(k)) => k == weak_neighbor.kind,
                 (None, None) => true,
             })
+            .take(limit.unwrap_or(usize::MAX))
             .collect()
     }
 }
